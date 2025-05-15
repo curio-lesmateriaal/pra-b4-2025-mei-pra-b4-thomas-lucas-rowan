@@ -13,7 +13,7 @@ namespace PRA_B4_FOTOKIOSK.controller
     {
         // De window die we laten zien op het scherm
         public static Home Window { get; set; }
-        
+
 
         // Start methode die wordt aangeroepen wanneer de zoek pagina opent.
         public void Start()
