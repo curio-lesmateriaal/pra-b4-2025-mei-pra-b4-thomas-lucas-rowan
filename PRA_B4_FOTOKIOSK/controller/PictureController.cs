@@ -11,6 +11,7 @@ namespace PRA_B4_FOTOKIOSK.controller
 {
     public class PictureController
     {
+
         // De window die we laten zien op het scherm
         public static Home Window { get; set; }
 
@@ -18,75 +19,69 @@ namespace PRA_B4_FOTOKIOSK.controller
         public List<KioskPhoto> PicturesToDisplay = new List<KioskPhoto>();
 
         // Start methode die wordt aangeroepen wanneer de foto pagina opent.
-
         public void Start()
         {
             var now = DateTime.Now;
-            // Initializeer de lijst met fotos
-            PicturesToDisplay.Clear();
-
-            // Lees foto's in en filter op juiste dag + tijd
-            var allPhotos = new List<KioskPhoto>();
+            int currentDay = (int)now.DayOfWeek;
 
             // WAARSCHUWING. ZONDER FILTER LAADT DIT ALLES!
             // foreach is een for-loop die door een array loopt
             foreach (string dir in Directory.GetDirectories(@"../../../fotos"))
             {
+
                 string folderName = Path.GetFileName(dir);
-                if (!folderName.StartsWith(((int)now.DayOfWeek).ToString() + "_"))
-                    continue;
+                if (!folderName.StartsWith(currentDay.ToString() + "_")) continue;
+
 
                 foreach (string file in Directory.GetFiles(dir))
                 {
-                    DateTime? fotoTime = GetPhotoTime(file, now);
-                    if (fotoTime.HasValue)
+                    // Splits pad in delen
+                    string[] pathParts = file.Split("\\");
+
+                    // Splits bestandsnaam in datumtijd en ID
+                    string[] nameParts = pathParts[2].Split("_id");
+
+                    // Zet datumtijd om naar DateTime
+                    DateTime fileDate = DateTime.Parse(nameParts[0].Replace("_", ":"));
+
+                    // Haal foto-ID uit bestandsnaam
+                    int photoId = int.Parse(nameParts[1].Split(".")[0]);
+
+                    //int fotoId = int.Parse(file.Split("_id")[1].Split(".")[0]);
+
+                    if (fileDate >= now.AddMinutes(-30) && fileDate <= now.AddMinutes(-2)) 
                     {
-                        double minutenVerschil = (now - fotoTime.Value).TotalMinutes;
-                        if (minutenVerschil >= 2 && minutenVerschil <= 30)
+                        
+                        bool add = false;
+
+                        foreach (KioskPhoto photo in PicturesToDisplay)
                         {
-                            allPhotos.Add(new KioskPhoto() { Id = 0, Source = file });
+                            //Foto wordt DateTime
+                            var fotoDate = DateTime.Parse(photo.Source.Split("\\")[2].Split("_id")[0].Replace("_", ":")); 
+                            if (fotoDate.AddSeconds(60) != fileDate)
+                                continue; 
+
+                            int index = PicturesToDisplay.IndexOf(photo);
+                            PicturesToDisplay.Insert(index, new KioskPhoto() { Id = photoId, Source = file });
+                            add = true;
+                            break;
                         }
+
+                        if (!add)
+                        {
+                            PicturesToDisplay.Add(new KioskPhoto() { Id = photoId, Source = file });
+
+                        }
+
                     }
+
                 }
+
+
+
+                // Update de fotos
+                PictureManager.UpdatePictures(PicturesToDisplay);
             }
-
-            // Sorteer op tijd
-            allPhotos = allPhotos.OrderBy(p => GetPhotoTime(p.Source, now)).ToList();
-            
-            // Koppel foto's die 60 seconden verschillen
-            var ordered = new List<KioskPhoto>();
-            var used = new HashSet<string>();
-
-            //chatgpt Heeft dit voor de helft gemaakt
-            for (int i = 0; i < allPhotos.Count; i++)
-            {
-                var foto1 = allPhotos[i];
-                if (used.Contains(foto1.Source)) continue;
-
-                ordered.Add(foto1);
-                used.Add(foto1.Source);
-
-                var tijd1 = GetPhotoTime(foto1.Source, now);
-
-                //chatgpt Heeft dit voor de helft gemaakt
-                for (int j = i + 1; j < allPhotos.Count; j++)
-                {
-                    var foto2 = allPhotos[j];
-                    if (used.Contains(foto2.Source)) continue;
-
-                    var tijd2 = GetPhotoTime(foto2.Source, now);
-                    if ((tijd2 - tijd1)?.TotalSeconds == 60)
-                    {
-                        ordered.Add(foto2);
-                        used.Add(foto2.Source);
-                    }
-                }
-            }
-
-            PicturesToDisplay = ordered;
-
-            // Update de fotos
-            PictureManager.UpdatePictures(PicturesToDisplay);
         }
 
         // Wordt uitgevoerd wanneer er op de Refresh knop is geklikt
@@ -95,19 +90,6 @@ namespace PRA_B4_FOTOKIOSK.controller
             Start();
         }
 
-        // Combineer parse + tijdafleiding in compacte 
-        private DateTime? GetPhotoTime(string file, DateTime now)
-        {
-            string[] parts = Path.GetFileNameWithoutExtension(file).Split('_');
-            if (parts.Length >= 3 &&
-                int.TryParse(parts[0], out int uur) &&
-                int.TryParse(parts[1], out int minuut) &&
-                int.TryParse(parts[2], out int seconde))
-            {
-                return new DateTime(now.Year, now.Month, now.Day, uur, minuut, seconde);
-            }
-            return null;
-        }
     }
 }
 
