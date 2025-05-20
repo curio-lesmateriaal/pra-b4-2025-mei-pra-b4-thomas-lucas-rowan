@@ -19,21 +19,23 @@ namespace PRA_B4_FOTOKIOSK.controller
     public class ShopController
     {
 
+        public static List<KioskProduct> Products = new List<KioskProduct>();
+
         public static Home Window { get; set; }
 
         public void Start()
         {
             // Voeg producten met beschrijving toe
-            ShopManager.Products.Add(new KioskProduct() { Name = "Foto 10x15", Price = 2.55, Description = "Glanzende fotoafdruk 10x15 cm" });
-            ShopManager.Products.Add(new KioskProduct() { Name = "Foto 15x20", Price = 4.00, Description = "Glanzende fotoafdruk 15x20 cm" });
-            ShopManager.Products.Add(new KioskProduct() { Name = "Sleutelhanger", Price = 7.00, Description = "Sleutelhanger met eigen foto" });
-            ShopManager.Products.Add(new KioskProduct() { Name = "Mok", Price = 9.33, Description = "Koffiemok met foto" });
-            ShopManager.Products.Add(new KioskProduct() { Name = "T-shirt", Price = 12.69, Description = "T-shirt met gepersonaliseerde opdruk" });
+            Products.Add(new KioskProduct() { Name = "Foto 10x15", Price = 2.55, Description = "Glanzende fotoafdruk 10x15 cm" });
+            Products.Add(new KioskProduct() { Name = "Foto 15x20", Price = 4.00, Description = "Glanzende fotoafdruk 15x20 cm" });
+            Products.Add(new KioskProduct() { Name = "Sleutelhanger", Price = 7.00, Description = "Sleutelhanger met eigen foto" });
+            Products.Add(new KioskProduct() { Name = "Mok", Price = 9.33, Description = "Koffiemok met foto" });
+            Products.Add(new KioskProduct() { Name = "T-shirt", Price = 12.69, Description = "T-shirt met gepersonaliseerde opdruk" });
 
             // Bouw prijslijst dynamisch op
             StringBuilder priceList = new StringBuilder();
             priceList.AppendLine("Prijzen:");
-            foreach (KioskProduct product in ShopManager.Products)
+            foreach (KioskProduct product in Products)
             {
                 priceList.AppendLine($"{product.Name}: €{product.Price} - {product.Description}");
             }
@@ -46,6 +48,8 @@ namespace PRA_B4_FOTOKIOSK.controller
 
             // Update dropdown met producten
             ShopManager.UpdateDropDownProducts();
+
+
         }
 
 
