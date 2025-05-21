@@ -28,7 +28,7 @@ namespace PRA_B4_FOTOKIOSK.controller
             // Bouw prijslijst dynamisch op
             foreach (KioskProduct product in ShopManager.Products)
             {
-                ShopManager.AddShopPriceList(product.Name + ": €" + product.Price +" "+ product.Description +"\n");
+                ShopManager.AddShopPriceList(product.Name + ": €" + product.Price + " " + product.Description + "\n");
             }
 
 
@@ -43,36 +43,59 @@ namespace PRA_B4_FOTOKIOSK.controller
 
         }
 
+        public class OrderedProduct
+        {
+            public string id { get; set; }
+            public string productName { get; set; }
+            public int amount { get; set; }
+            public double totalPrice { get; set; }
+
+        }
+
+        private List<OrderedProduct> orderedProducts = new List<OrderedProduct>();
 
         // Wordt uitgevoerd wanneer er op de Toevoegen knop is geklikt
         public void AddButtonClick()
         {
-            KioskProduct product = ShopManager.GetSelectedProduct(); 
-            int? id = ShopManager.GetFotoId(); 
+            KioskProduct product = ShopManager.GetSelectedProduct();
+            int? id = ShopManager.GetFotoId();
             int? amount = ShopManager.GetAmount();
-            if(amount == null || id == null || product == null)
+            if (amount == null || id == null || product == null)
             {
                 //verkeerde input
                 return;
             }
-            string receipt = ShopManager.GetShopReceipt();
-            string[] parts = receipt.Split(' ');
-            double totalPrice = 0;
-            foreach(string part in parts)
+
+            OrderedProduct newProduct = new OrderedProduct
             {
-                if(double.TryParse(part, out double price))
-                {
-                    totalPrice = price;
-                }
+                id = id.ToString(),
+                productName = product.Name,
+                amount = amount.Value,
+                totalPrice = product.Price * amount.Value
+            };
+
+            orderedProducts.Add(newProduct);
+
+            // Genereer kassabon
+            double totaalBedrag = orderedProducts.Sum(product => product.totalPrice);
+            StringBuilder receiptBuilder = new StringBuilder();
+            receiptBuilder.AppendLine($"EindBedrag\n€ {totaalBedrag:F2}\n");
+
+            foreach (var endProduct in orderedProducts)
+            {
+                receiptBuilder.AppendLine($"{endProduct.productName} (x{endProduct.amount}) - € {endProduct.totalPrice:F2}");
             }
-            ShopManager.SetShopReceipt($"EindBedrag\n€ {product.Price * amount + totalPrice}");
+
+            ShopManager.SetShopReceipt(receiptBuilder.ToString());
 
         }
+
+
+
 
         // Wordt uitgevoerd wanneer er op de Resetten knop is geklikt
         public void ResetButtonClick()
         {
-
         }
 
         // Wordt uitgevoerd wanneer er op de Save knop is geklikt
