@@ -107,17 +107,14 @@ namespace PRA_B4_FOTOKIOSK.controller
             // Huidige map van het programma
             string currentFolder = AppDomain.CurrentDomain.BaseDirectory;
 
-            // Submap "Bonnen" binnen de huidige folder
             string subFolderName = "Bonnen";
             string folderPath = Path.Combine(currentFolder, subFolderName);
 
-            // Zorg dat de map bestaat (maakt aan als hij er nog niet is)
             if (!Directory.Exists(folderPath))
             {
-                Directory.CreateDirectory(folderPath);
+                Directory.CreateDirectory(folderPath); 
             }
 
-            // Unieke bestandsnaam op basis van datum/tijd
             string fileName = $"bon_{DateTime.Now:yyyyMMdd_HHmmss}.txt";
             string fullPath = Path.Combine(folderPath, fileName);
 
@@ -126,12 +123,10 @@ namespace PRA_B4_FOTOKIOSK.controller
                 // Schrijf de bon naar een tekstbestand
                 File.WriteAllText(fullPath, receipt);
 
-                // Toon bevestiging
                 System.Windows.MessageBox.Show($"Bon succesvol opgeslagen:\n{fullPath}");
             }
             catch (Exception ex)
-            {
-                // Toon foutmelding
+            { 
                 System.Windows.MessageBox.Show("Fout bij opslaan van de bon: " + ex.Message);
             }
         }
