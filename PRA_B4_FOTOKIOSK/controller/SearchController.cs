@@ -6,7 +6,9 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Controls;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace PRA_B4_FOTOKIOSK.controller
 {
@@ -26,76 +28,92 @@ namespace PRA_B4_FOTOKIOSK.controller
         public void SearchButtonClick()
         {
 
-
-
-            if (Window.weekOfDay.SelectedItem is not ComboBoxItem selectedWeekOfDay)
-            {
-                return;
-            }
-
-            string selectedWeekOfDayString = selectedWeekOfDay.Content.ToString();
             var now = DateTime.Now;
             int today = (int)now.DayOfWeek;
 
+            //if (Window.weekOfDay.SelectedItem is not ComboBoxItem selectedWeekOfDay)
+            //{
+            //    return;
+            //}
+            string time = SearchManager.GetSearchInput();
+            //string time = Window.tbZoeken.Text;
+            //Window.lbSearchInfo.Content = text;
 
-            // Initializeer de lijst met fotos
-            if (selectedWeekOfDayString == "zondag")
-            {
-                today = 0;
-            }
-            else if (selectedWeekOfDayString == "maandag")
-            {
-                today = 1;
-            }
-            else if (selectedWeekOfDayString == "dinsdag")
-            {
-                today = 2;
-            }
-            else if (selectedWeekOfDayString == "woensdag")
-            {
-                today = 3;
-            }
-            else if (selectedWeekOfDayString == "donderdag")
-            {
-                today = 4;
-            }
-            else if (selectedWeekOfDayString == "vrijdag")
-            {
-                today = 5;
-            }
-            else if (selectedWeekOfDayString == "zaterdag")
-            {
-                today = 6;
-            }
+            //var fotoDate = DateTime.Parse(photo.Source.Split("\\")[2].Split("_id")[0].Replace("_", ":"));
 
-            foreach (string dir in Directory.GetDirectories(@"../../../fotos"))
+            string[] timeParts = time.Split(':');
+            if (int.TryParse(timeParts[0], out int iHour) &&
+                int.TryParse(timeParts[1], out int iMinute) &&
+                int.TryParse(timeParts[2], out int iSecond))
             {
-                string folderName = Path.GetFileName(dir);
-                if (!folderName.StartsWith(today.ToString() + "_")) continue;
-
-                // Haal alle afbeeldingsbestanden op uit de juiste map
-                string[] imageFiles = Directory.GetFiles(dir, "*.*")
-                    .Where(file => file.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) ||
-                                   file.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase) ||
-                                   file.EndsWith(".png", StringComparison.OrdinalIgnoreCase))
-                    .ToArray();
-
-                foreach (string imagePath in imageFiles)
+                if (timeParts == null || timeParts.Length != 3)
                 {
-                    // Hier kun je iets doen met het pad van het beeld
-                    Console.WriteLine($"Gevonden foto: {imagePath}");
+                    MessageBox.Show("Geen geldige invoer");
+                    return;
+                }
 
-                    // Als je metadata wil uitlezen:
-                    // var image = new FileInfo(imagePath);
-                    // var created = image.CreationTime;
+                bool isFound = false;
+
+
+                //string searchTerm = SearchManager.GetSearchInput()?.ToLower() ?? "";
+
+                foreach (string dir in Directory.GetDirectories(@"../../../fotos"))
+                {
+                    string folderName = Path.GetFileName(dir);
+                    if (!folderName.StartsWith(today.ToString() + "_")) continue;
+
+                    foreach (string file in Directory.GetFiles(dir))
+                    {
+                        string fileName = Path.GetFileName(file);
+                        string[] fileParts = fileName.Split('_');
+
+                        if (fileParts.Length > 3)
+                        {
+                            if (int.TryParse(fileParts[0], out int hour) &&
+                                int.TryParse(fileParts[1], out int minute) &&
+                                int.TryParse(fileParts[2], out int second))
+                            {
+                                if (hour == iHour && minute == iMinute && second == iSecond)
+                                {
+                                    SearchManager.SetPicture(file);
+                                    isFound = true;
+
+                                    string displaySecond = second.ToString();
+                                    string displayMinute = minute.ToString();
+
+                                    if (minute.ToString().Length == 1)
+                                    {
+                                        displayMinute = "0" + minute;
+
+                                    }
+
+                                    if (second.ToString().Length == 1)
+                                    {
+                                        displaySecond = "0" + second;
+                                    }
+
+                                    // Haal alle afbeeldingsbestanden op uit de juiste map
+
+                                    string text = "Foto gevonden:  - " + hour + ":" + displayMinute + ":" + displaySecond + " met id: " + fileParts[3].Substring(2, fileParts[3].Length - 6);
+                                    //SearchManager.SetSearchImageInfo(text);
+                                    Window.lbSearchInfo.Content = text;
+
+                                }
+
+                            }
+
+
+                        }
+                    }
                 }
             }
-
         }
-
-
     }
 }
 
-    
+
+
+
+
+
 

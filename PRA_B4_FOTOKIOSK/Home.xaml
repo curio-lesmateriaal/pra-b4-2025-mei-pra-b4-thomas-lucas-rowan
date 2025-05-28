@@ -39,15 +39,6 @@
             </TabItem>
             <TabItem Header="Zoeken" Height="22" Margin="-2,0,-2,2" VerticalAlignment="Bottom">
                 <Grid>
-                    <ComboBox x:Name="weekOfDay" HorizontalAlignment="Left" Margin="100,116,0,0" VerticalAlignment="Top" Height="24" Width="130">
-                        <ComboBoxItem Content="maandag"/>
-                        <ComboBoxItem Content="dinsdag"/>
-                        <ComboBoxItem Content="woensdag"/>
-                        <ComboBoxItem Content="donderdag"/>
-                        <ComboBoxItem Content="vrijdag"/>
-                        <ComboBoxItem Content="zaterdag"/>
-                        <ComboBoxItem Content="zondag"/>
-                    </ComboBox>
                     <Label Content="Zoeken:" HorizontalAlignment="Left" Margin="100,53,0,0" VerticalAlignment="Top" Height="24" Width="162"/>
                     <TextBox x:Name="tbZoeken" HorizontalAlignment="Left" Margin="100,77,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="325" Height="22"/>
                     <Button x:Name="btnZoeken" Content="Zoeken" HorizontalAlignment="Left" Margin="430,77,0,0" VerticalAlignment="Top" Width="83" Height="22" Click="btnZoeken_Click"/>
