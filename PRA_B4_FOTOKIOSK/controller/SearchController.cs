@@ -7,8 +7,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace PRA_B4_FOTOKIOSK.controller
 {
@@ -17,14 +15,14 @@ namespace PRA_B4_FOTOKIOSK.controller
         // De window die we laten zien op het scherm
         public static Home Window { get; set; }
 
-
-        // Start methode die wordt aangeroepen wanneer de zoek pagina opent.
+        // Start methode die wordt aangeroepen wanneer de zoekpagina opent
         public void Start()
         {
 
         }
-
-        // Wordt uitgevoerd wanneer er op de Zoeken knop is geklikt
+        //10_08_45_id7700
+        //10:08:45
+        // Wordt uitgevoerd wanneer er op de Zoeken-knop is geklikt
         public void SearchButtonClick()
         {
             var now = DateTime.Now;
@@ -70,11 +68,18 @@ namespace PRA_B4_FOTOKIOSK.controller
                             SearchManager.SetPicture(file);
                             isFound = true;
 
+                            string displayHour = hour.ToString("D2");
                             string displayMinute = minute.ToString("D2");
                             string displaySecond = second.ToString("D2");
+                            string date = now.ToString("dd-MM-yyyy");
 
-                            string text = $"Foto gevonden: - {hour}:{displayMinute}:{displaySecond} met id: {fileParts[3].Substring(2, fileParts[3].Length - 6)}";
-                            Window.lbSearchInfo.Content = text;
+                            // Haal ID uit het vierde deel van de bestandsnaam, bv. id123456.jpg → 123456
+                            string idRaw = fileParts[3]; // bv. id123456.jpg
+                            string id = idRaw.Substring(2, idRaw.Length - 6); // strip 'id' en '.jpg'
+
+                            string infoText = $" ID: {id} | Tijd: {displayHour}:{displayMinute}:{displaySecond} | Datum: {date}";
+                            SearchManager.SetSearchImageInfo(infoText);
+
                             return;
                         }
                     }
@@ -88,10 +93,3 @@ namespace PRA_B4_FOTOKIOSK.controller
         }
     }
 }
-
-
-
-
-
-
-
